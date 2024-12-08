@@ -56,15 +56,6 @@ public class PrintQueuePart2 {
         }
     }
 
-    private static void swap(int idx1, int idx2, List<Integer> pages, Map<Integer, Integer> pageIndexes) {
-        Integer tmp = pages.get(idx1);
-        Integer tmpIdx = pages.get(tmp);
-        pages.set(idx1, pages.get(idx2));
-        pageIndexes.put(pages.get(idx2), idx1);
-        pages.set(idx2, tmp);
-        pageIndexes.put(tmp, tmpIdx);
-    }
-
     private static boolean isCorrectlyOrdered(List<Integer> pages, Map<Integer, List<Integer>> rules) {
         Map<Integer, Integer> pageIndexes = new HashMap<>();
         for (int i = 0; i < pages.size(); i++) {
