@@ -11,8 +11,6 @@ import java.util.List;
 
 public class CeresSearchPart2 {
 
-    private static final String XMAS = "XMAS";
-
     public static void main(String[] args) throws IOException {
 
         ClassLoader classLoader = CeresSearchPart2.class.getClassLoader();
