@@ -1,6 +1,6 @@
 package com.cheung.timothy.day05;
 
-import com.cheung.timothy.day04.CeresSearch;
+import com.cheung.timothy.day04.CeresSearchPart1;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -13,7 +13,7 @@ public class PrintQueuePart2 {
 
     public static void main(String[] args) throws IOException {
 
-        ClassLoader classLoader = CeresSearch.class.getClassLoader();
+        ClassLoader classLoader = CeresSearchPart1.class.getClassLoader();
 
         try (InputStream inputStream = classLoader.getResourceAsStream("PrintQueue/input.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
