@@ -1,12 +1,12 @@
 package com.cheung.timothy.day12;
 
-import com.cheung.timothy.day06.Coord;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class GardenGroupsPart1 {
 
@@ -14,46 +14,48 @@ public class GardenGroupsPart1 {
 
         ClassLoader classLoader = GardenGroupsPart1.class.getClassLoader();
 
-        try (InputStream inputStream = classLoader.getResourceAsStream("GardenGroups/example.txt");
+        try (InputStream inputStream = classLoader.getResourceAsStream("GardenGroups/input.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
-            List<List<String>> garden = new ArrayList<>();
+            List<List<Node>> garden = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
-                garden.add(Arrays.asList(line.split("")));
+                List<Node> row = new ArrayList<>();
+                for (String group : line.split("")) {
+                    row.add(new Node(group));
+                }
+                garden.add(row);
             }
-            Map<Coord, PlotKey> coordToPlotKey = new HashMap<>();
-            Map<PlotKey, PlotStats> stats = new HashMap<>();
+
 
             for (int y = 0; y < garden.size(); y++) {
                 for (int x = 0; x < garden.get(y).size(); x++) {
-                    String currentPlot = garden.get(y).get(x);
-                    PlotKey key = getPlotKey(new Coord(x, y), coordToPlotKey, garden);
-                    if (!stats.containsKey(key)) {
-                        stats.put(key, new PlotStats());
-                    }
+                    Node currPlot = garden.get(y).get(x);
 
-                    int perimeter = 0;
-                    if (x - 1 < 0 || !currentPlot.equals(garden.get(y).get(x - 1))) {
-                        perimeter++;
+                    if (y - 1 >= 0 && currPlot.getGroup().equals(garden.get(y - 1).get(x).getGroup())) {
+                        currPlot.setTop(garden.get(y - 1).get(x));
                     }
-                    if (x + 1 >= garden.get(y).size() || !currentPlot.equals(garden.get(y).get(x + 1))) {
-                        perimeter++;
+                    if (y + 1 < garden.size() && currPlot.getGroup().equals(garden.get(y + 1).get(x).getGroup())) {
+                        currPlot.setDown(garden.get(y + 1).get(x));
                     }
-                    if (y - 1 < 0 || !currentPlot.equals(garden.get(y - 1).get(x))) {
-                        perimeter++;
+                    if (x - 1 >= 0 && currPlot.getGroup().equals(garden.get(y).get(x - 1).getGroup())) {
+                        currPlot.setLeft(garden.get(y).get(x - 1));
                     }
-                    if (y + 1 >= garden.size() || !currentPlot.equals(garden.get(y + 1).get(x))) {
-                        perimeter++;
+                    if (x + 1 < garden.get(0).size() && currPlot.getGroup().equals(garden.get(y).get(x + 1).getGroup())) {
+                        currPlot.setRight(garden.get(y).get(x + 1));
                     }
-
-                    stats.get(key).incrementStats(1, perimeter);
                 }
             }
 
-            int totalCost = 0;
-            for (PlotStats plotStat: stats.values()) {
-                totalCost += plotStat.getFenceCost();
-            }
+            AtomicInteger totalCost = new AtomicInteger();
+            garden.forEach(nodes -> {
+                nodes.forEach(node -> {
+                    if (!node.isVisited()) {
+                        PlotStats plotStats = new PlotStats();
+                        calculateCost(node, plotStats);
+                        totalCost.addAndGet(plotStats.getFenceCost());
+                    }
+                });
+            });
 
             System.out.println("Fence Cost: " + totalCost);
         } catch (IOException e) {
@@ -61,49 +63,92 @@ public class GardenGroupsPart1 {
         }
     }
 
-    private static PlotKey getPlotKey(Coord plotCoord, Map<Coord, PlotKey> coordPlotKeyMap, List<List<String>> garden) {
-        String gardenPlot = garden.get(plotCoord.getY()).get(plotCoord.getX());
-        Coord plotUp = new Coord(plotCoord.getX(), plotCoord.getY() - 1);
-        Coord plotLeft = new Coord(plotCoord.getX() - 1, plotCoord.getY());
-
-        PlotKey plotUpKey = coordPlotKeyMap.get(plotUp);
-        PlotKey plotLeftKey = coordPlotKeyMap.get(plotLeft);
-        if (plotUpKey != null && gardenPlot.equals(plotUpKey.getKey()) && coordPlotKeyMap.containsKey(plotUp)) {
-            coordPlotKeyMap.put(plotCoord, plotUpKey);
-            return plotUpKey;
-        } else if (plotLeftKey != null && gardenPlot.equals(plotLeftKey.getKey()) && coordPlotKeyMap.containsKey(plotLeft)) {
-            coordPlotKeyMap.put(plotCoord, plotLeftKey);
-            return plotLeftKey;
+    private static void calculateCost(Node node, PlotStats plotStats) {
+        if (node == null) {
+            return;
         }
-        PlotKey key = new PlotKey(garden.get(plotCoord.getY()).get(plotCoord.getX()), UUID.randomUUID().toString());
-        coordPlotKeyMap.put(plotCoord, key);
-        return key;
+        if (!node.isVisited()) {
+            plotStats.incrementStats(1, node.getPerimeter());
+            node.setVisited();
+            calculateCost(node.getLeft(), plotStats);
+            calculateCost(node.getRight(), plotStats);
+            calculateCost(node.getTop(), plotStats);
+            calculateCost(node.getDown(), plotStats);
+        }
     }
 }
 
-class PlotKey {
-    private String key;
-    private String uuid;
+class Node {
+    private final String group;
+    private Node left;
+    private Node right;
+    private Node top;
+    private Node down;
+    private boolean visited;
 
-    public PlotKey(String key, String uuid) {
-        this.key = key;
-        this.uuid = uuid;
+    public Node(String group) {
+        this.group = group;
     }
 
-    public String getKey() {
-        return key;
+    public Node getLeft() {
+        return this.left;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof PlotKey plotKey)) return false;
-        return Objects.equals(key, plotKey.key) && Objects.equals(uuid, plotKey.uuid);
+    public void setLeft(Node node) {
+        this.left = node;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(key, uuid);
+    public Node getRight() {
+        return this.right;
+    }
+
+    public void setRight(Node node) {
+        this.right = node;
+    }
+
+    public Node getTop() {
+        return this.top;
+    }
+
+    public void setTop(Node node) {
+        this.top = node;
+    }
+
+    public Node getDown() {
+        return this.down;
+    }
+
+    public void setDown(Node node) {
+        this.down = node;
+    }
+
+    public String getGroup() {
+        return group;
+    }
+
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited() {
+        this.visited = true;
+    }
+
+    public int getPerimeter() {
+        int perimeter = 0;
+        if (this.left == null) {
+            perimeter++;
+        }
+        if (this.right == null) {
+            perimeter++;
+        }
+        if (this.top == null) {
+            perimeter++;
+        }
+        if (this.down == null) {
+            perimeter++;
+        }
+        return perimeter;
     }
 }
 
