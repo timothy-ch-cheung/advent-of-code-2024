@@ -8,13 +8,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class GardenGroupsPart1 {
+public class GardenGroupsPart2 {
 
     public static void main(String[] args) throws IOException {
 
         ClassLoader classLoader = GardenGroupsPart1.class.getClassLoader();
 
-        try (InputStream inputStream = classLoader.getResourceAsStream("GardenGroups/input.txt");
+        try (InputStream inputStream = classLoader.getResourceAsStream("GardenGroups/example.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
             List<List<Node>> garden = new ArrayList<>();
@@ -52,7 +52,7 @@ public class GardenGroupsPart1 {
                     if (!node.isVisited()) {
                         PlotStats plotStats = new PlotStats();
                         calculateCost(node, plotStats);
-                        totalCost.addAndGet(plotStats.getArea() * plotStats.getPerimeter());
+                        totalCost.addAndGet(plotStats.getSides() * plotStats.getArea());
                     }
                 });
             });
@@ -68,114 +68,21 @@ public class GardenGroupsPart1 {
             return;
         }
         if (!node.isVisited()) {
-            plotStats.incrementPerimeter(1, node.getPerimeter());
+            if (
+                    (node.getLeft() == null && node.getTop() == null && node.getRight() == null) ||
+                            (node.getTop() == null && node.getRight() == null && node.getDown() == null) ||
+                            (node.getRight() == null && node.getDown() == null && node.getLeft() == null) ||
+                            (node.getDown() == null && node.getLeft() == null && node.getTop() == null)
+            ) {
+                plotStats.incrementSides(1, 2);
+            } else {
+                plotStats.incrementSides(1, 0);
+            }
             node.setVisited();
             calculateCost(node.getLeft(), plotStats);
             calculateCost(node.getRight(), plotStats);
             calculateCost(node.getTop(), plotStats);
             calculateCost(node.getDown(), plotStats);
         }
-    }
-}
-
-class Node {
-    private final String group;
-    private Node left;
-    private Node right;
-    private Node top;
-    private Node down;
-    private boolean visited;
-
-    public Node(String group) {
-        this.group = group;
-    }
-
-    public Node getLeft() {
-        return this.left;
-    }
-
-    public void setLeft(Node node) {
-        this.left = node;
-    }
-
-    public Node getRight() {
-        return this.right;
-    }
-
-    public void setRight(Node node) {
-        this.right = node;
-    }
-
-    public Node getTop() {
-        return this.top;
-    }
-
-    public void setTop(Node node) {
-        this.top = node;
-    }
-
-    public Node getDown() {
-        return this.down;
-    }
-
-    public void setDown(Node node) {
-        this.down = node;
-    }
-
-    public String getGroup() {
-        return group;
-    }
-
-    public boolean isVisited() {
-        return visited;
-    }
-
-    public void setVisited() {
-        this.visited = true;
-    }
-
-    public int getPerimeter() {
-        int perimeter = 0;
-        if (this.left == null) {
-            perimeter++;
-        }
-        if (this.right == null) {
-            perimeter++;
-        }
-        if (this.top == null) {
-            perimeter++;
-        }
-        if (this.down == null) {
-            perimeter++;
-        }
-        return perimeter;
-    }
-}
-
-class PlotStats {
-    private int area;
-    private int perimeter;
-    private int sides;
-
-    public void incrementPerimeter(int areaIncrement, int perimeterIncrement) {
-        area += areaIncrement;
-        perimeter += perimeterIncrement;
-    }
-
-    public void incrementSides(int areaIncrement, int sidesIncrement) {
-        area += areaIncrement;
-        sides += sidesIncrement;
-    }
-
-    public int getArea() {
-        return area;
-    }
-
-    public int getPerimeter() {
-        return perimeter;
-    }
-
-    public int getSides() {
-        return sides;
     }
 }
