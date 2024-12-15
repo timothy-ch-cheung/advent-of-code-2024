@@ -56,21 +56,21 @@ public class RestroomRedoubtPart1 {
 
             int secondQuadrant = 0;
             for (int y = 0; y < ROWS / 2; y++) {
-                for (int x = COLS / 2; x < COLS; x++) {
+                for (int x = COLS / 2 + 1; x < COLS; x++) {
                     secondQuadrant += map[y][x];
                 }
             }
 
             int thirdQuadrant = 0;
-            for (int y = ROWS / 2; y < ROWS; y++) {
+            for (int y = ROWS / 2 + 1; y < ROWS; y++) {
                 for (int x = 0; x < COLS / 2; x++) {
                     thirdQuadrant += map[y][x];
                 }
             }
 
             int fourthQuadrant = 0;
-            for (int y = ROWS / 2; y < ROWS; y++) {
-                for (int x = COLS / 2; x < COLS; x++) {
+            for (int y = ROWS / 2 + 1; y < ROWS; y++) {
+                for (int x = COLS / 2 + 1; x < COLS; x++) {
                     fourthQuadrant += map[y][x];
                 }
             }
