@@ -1,5 +1,7 @@
 package com.cheung.timothy.day06;
 
+import com.cheung.timothy.day13.Delta;
+
 import java.util.Objects;
 
 public class Coord {
@@ -22,6 +24,11 @@ public class Coord {
     public void set(int x, int y) {
         this.x = x;
         this.y = y;
+    }
+
+    public void apply(Delta delta) {
+        this.x += delta.getX();
+        this.y += delta.getY();
     }
 
     @Override
