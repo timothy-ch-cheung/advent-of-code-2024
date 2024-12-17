@@ -4,8 +4,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class GardenGroupsPart2 {
@@ -51,8 +50,9 @@ public class GardenGroupsPart2 {
                 nodes.forEach(node -> {
                     if (!node.isVisited()) {
                         PlotStats plotStats = new PlotStats();
-                        calculateCost(node, plotStats);
-                        totalCost.addAndGet(plotStats.getSides() * plotStats.getArea());
+                        calculateCost(node, plotStats, new HashSet<>());
+                        int plotCost = plotStats.getSides() * plotStats.getArea();
+                        totalCost.addAndGet(plotCost);
                     }
                 });
             });
@@ -63,26 +63,56 @@ public class GardenGroupsPart2 {
         }
     }
 
-    private static void calculateCost(Node node, PlotStats plotStats) {
+    private static void calculateCost(Node node, PlotStats plotStats, Set<Set<Node>> knownInnerCorners) {
         if (node == null) {
             return;
         }
         if (!node.isVisited()) {
-            if (
-                    (node.getLeft() == null && node.getTop() == null && node.getRight() == null) ||
-                            (node.getTop() == null && node.getRight() == null && node.getDown() == null) ||
-                            (node.getRight() == null && node.getDown() == null && node.getLeft() == null) ||
-                            (node.getDown() == null && node.getLeft() == null && node.getTop() == null)
-            ) {
+            if (isDoubleCorner(node)) {
                 plotStats.incrementSides(1, 2);
+            } else if (isOuterCorner(node)) {
+                plotStats.incrementSides(1, 1);
             } else {
-                plotStats.incrementSides(1, 0);
+                Set<Node> innerCorner = isInnerCorner(node);
+                if (innerCorner != null && !knownInnerCorners.contains(innerCorner)) {
+                    plotStats.incrementSides(1, 1);
+                    knownInnerCorners.add(innerCorner);
+                } else {
+                    plotStats.incrementSides(1, 0);
+                }
             }
             node.setVisited();
-            calculateCost(node.getLeft(), plotStats);
-            calculateCost(node.getRight(), plotStats);
-            calculateCost(node.getTop(), plotStats);
-            calculateCost(node.getDown(), plotStats);
+            calculateCost(node.getLeft(), plotStats, knownInnerCorners);
+            calculateCost(node.getRight(), plotStats, knownInnerCorners);
+            calculateCost(node.getTop(), plotStats, knownInnerCorners);
+            calculateCost(node.getDown(), plotStats, knownInnerCorners);
         }
+    }
+    
+    private static boolean isDoubleCorner(Node node) {
+        return (node.getTop() == null && node.getRight() == null && node.getDown() == null && node.getLeft() != null) ||
+                (node.getRight() == null && node.getDown() == null && node.getLeft() == null && node.getTop() != null) ||
+                (node.getDown() == null && node.getLeft() == null && node.getTop() == null && node.getRight() != null) ||
+                (node.getLeft() == null && node.getTop() == null && node.getRight() == null && node.getDown() != null);
+    }
+    
+    private static boolean isOuterCorner(Node node) {
+        return (node.getTop() == null && node.getRight() == null && node.getDown() != null && node.getLeft() != null) ||
+                (node.getRight() == null && node.getDown() == null && node.getLeft() != null && node.getTop() != null) ||
+                (node.getDown() == null && node.getLeft() == null && node.getTop() != null && node.getRight() != null) ||
+                (node.getLeft() == null && node.getTop() == null && node.getRight() != null && node.getDown() != null);
+    }
+    
+    private static Set<Node> isInnerCorner(Node node) {
+        if (node.getRight() == null && node.getTop() != null && node.getTop().getRight() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getTop(), node.getTop().getRight()));
+        } else if (node.getDown() == null && node.getRight() != null && node.getRight().getDown() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getRight(), node.getRight().getDown()));
+        } else if (node.getLeft() == null && node.getDown() != null && node.getDown().getLeft() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getDown(), node.getDown().getLeft()));
+        } else if (node.getTop() == null && node.getLeft() != null && node.getLeft().getTop() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getLeft(), node.getLeft().getTop()));
+        }
+        return null;
     }
 }
