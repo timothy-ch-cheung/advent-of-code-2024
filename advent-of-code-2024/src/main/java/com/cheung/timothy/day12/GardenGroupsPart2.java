@@ -123,7 +123,20 @@ public class GardenGroupsPart2 {
 
         } else if (node.getTop() == null && node.getLeft() != null && node.getLeft().getTop() != null) {
             return new HashSet<>(Arrays.asList(node, node.getLeft(), node.getLeft().getTop()));
+
+        } else if (node.getRight() == null && node.getTop() != null && node.getTop().getLeft() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getTop(), node.getTop().getLeft()));
+
+        } else if (node.getDown() == null && node.getLeft() != null && node.getLeft().getDown() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getLeft(), node.getLeft().getDown()));
+
+        } else if (node.getLeft() == null && node.getTop() != null && node.getTop().getLeft() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getTop(), node.getTop().getLeft()));
+
+        } else if (node.getRight() == null && node.getDown() != null && node.getDown().getRight() != null) {
+            return new HashSet<>(Arrays.asList(node, node.getDown(), node.getDown().getRight()));
         }
+
         return null;
     }
 }
