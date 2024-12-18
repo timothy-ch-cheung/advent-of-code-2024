@@ -50,7 +50,8 @@ public class GardenGroupsPart2 {
                 nodes.forEach(node -> {
                     if (!node.isVisited()) {
                         PlotStats plotStats = new PlotStats();
-                        calculateCost(node, plotStats, new HashSet<>());
+                        Set<Set<Node>> knownInnerCorners = new HashSet<>();
+                        calculateCost(node, plotStats, knownInnerCorners);
                         int plotCost = plotStats.getSides() * plotStats.getArea();
                         totalCost.addAndGet(plotCost);
                     }
@@ -63,22 +64,25 @@ public class GardenGroupsPart2 {
         }
     }
 
-    private static void calculateCost(Node node, PlotStats plotStats, Set<Set<Node>> knownInnerCorners) {
+    static void calculateCost(Node node, PlotStats plotStats, Set<Set<Node>> knownInnerCorners) {
         if (node == null) {
             return;
         }
         if (!node.isVisited()) {
-            if (isDoubleCorner(node)) {
-                plotStats.incrementSides(1, 2);
-            } else if (isOuterCorner(node)) {
-                plotStats.incrementSides(1, 1);
+            plotStats.incrementArea(1);
+            if (isQuadrupleCorner(node)) {
+                plotStats.incrementSides(4);
             } else {
+                if (isDoubleCorner(node)) {
+                    plotStats.incrementSides(2);
+                }
+                if (isOuterCorner(node)) {
+                    plotStats.incrementSides(1);
+                }
                 Set<Node> innerCorner = isInnerCorner(node);
                 if (innerCorner != null && !knownInnerCorners.contains(innerCorner)) {
-                    plotStats.incrementSides(1, 1);
+                    plotStats.incrementSides(1);
                     knownInnerCorners.add(innerCorner);
-                } else {
-                    plotStats.incrementSides(1, 0);
                 }
             }
             node.setVisited();
@@ -88,28 +92,35 @@ public class GardenGroupsPart2 {
             calculateCost(node.getDown(), plotStats, knownInnerCorners);
         }
     }
-    
+
+    private static boolean isQuadrupleCorner(Node node) {
+        return node.getTop() == null && node.getLeft() == null && node.getRight() == null && node.getDown() == null;
+    }
+
     private static boolean isDoubleCorner(Node node) {
         return (node.getTop() == null && node.getRight() == null && node.getDown() == null && node.getLeft() != null) ||
                 (node.getRight() == null && node.getDown() == null && node.getLeft() == null && node.getTop() != null) ||
                 (node.getDown() == null && node.getLeft() == null && node.getTop() == null && node.getRight() != null) ||
                 (node.getLeft() == null && node.getTop() == null && node.getRight() == null && node.getDown() != null);
     }
-    
+
     private static boolean isOuterCorner(Node node) {
         return (node.getTop() == null && node.getRight() == null && node.getDown() != null && node.getLeft() != null) ||
                 (node.getRight() == null && node.getDown() == null && node.getLeft() != null && node.getTop() != null) ||
                 (node.getDown() == null && node.getLeft() == null && node.getTop() != null && node.getRight() != null) ||
                 (node.getLeft() == null && node.getTop() == null && node.getRight() != null && node.getDown() != null);
     }
-    
+
     private static Set<Node> isInnerCorner(Node node) {
         if (node.getRight() == null && node.getTop() != null && node.getTop().getRight() != null) {
             return new HashSet<>(Arrays.asList(node, node.getTop(), node.getTop().getRight()));
+
         } else if (node.getDown() == null && node.getRight() != null && node.getRight().getDown() != null) {
             return new HashSet<>(Arrays.asList(node, node.getRight(), node.getRight().getDown()));
+
         } else if (node.getLeft() == null && node.getDown() != null && node.getDown().getLeft() != null) {
             return new HashSet<>(Arrays.asList(node, node.getDown(), node.getDown().getLeft()));
+
         } else if (node.getTop() == null && node.getLeft() != null && node.getLeft().getTop() != null) {
             return new HashSet<>(Arrays.asList(node, node.getLeft(), node.getLeft().getTop()));
         }
