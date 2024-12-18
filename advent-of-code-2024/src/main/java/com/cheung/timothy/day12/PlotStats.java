@@ -10,8 +10,11 @@ class PlotStats {
         perimeter += perimeterIncrement;
     }
 
-    public void incrementSides(int areaIncrement, int sidesIncrement) {
+    public void incrementArea(int areaIncrement) {
         area += areaIncrement;
+    }
+
+    public void incrementSides(int sidesIncrement) {
         sides += sidesIncrement;
     }
 
