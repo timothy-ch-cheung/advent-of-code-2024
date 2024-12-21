@@ -9,14 +9,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
 
-public class RaceConditionPart1 {
+public class RaceConditionPart2 {
 
     private static final char START = 'S';
     private static final char END = 'E';
     private static final char SPACE = '.';
     private static final char WALL = '#';
-
-    private static final int CHEAT_COST = 2;
 
     public static void main(String[] args) throws IOException {
 
@@ -62,7 +60,7 @@ public class RaceConditionPart1 {
                 pathCost.put(current, mainPathPicoseconds);
                 List<Coord> nextCoords = nextCoords(current);
                 for (Coord coord: nextCoords) {
-                    if (isWithinBounds(coord, rows, cols) && !coord.equals(prev) && (map.get(coord.getY()).get(coord.getX()) == SPACE || map.get(coord.getY()).get(coord.getX()) == END)) {
+                    if (isWithinBounds(coord, map) && !coord.equals(prev) && (map.get(coord.getY()).get(coord.getX()) == SPACE || map.get(coord.getY()).get(coord.getX()) == END)) {
                         prev = current;
                         current = coord;
                         break;
@@ -75,12 +73,15 @@ public class RaceConditionPart1 {
             System.out.println("Initial Cost: " + mainPathPicoseconds + "\n");
 
             int numCheats = 0;
-            Set<Coord> usedCheats = new HashSet<>();
+            Set<CheatCoord> usedCheats = new HashSet<>();
             for (int i = 0; i < path.size(); i++) {
-                for (CheatCoord cheatCoord: cheatCoords(path.get(i), map)) {
-                    if (isWithinBounds(cheatCoord.resultCoord, rows, cols) && pathCost.containsKey(cheatCoord.resultCoord) && !usedCheats.contains(cheatCoord.cheatCoord)) {
-                        usedCheats.add(cheatCoord.cheatCoord);
-                        int newCost = (mainPathPicoseconds - pathCost.get(cheatCoord.resultCoord)) + i + 2;
+                Map<Coord, Integer> cheatCoords = new HashMap<>();
+                cheatCoords(path.get(i), map, cheatCoords, 0, 20);
+                for (Map.Entry<Coord, Integer> cheatEntry: cheatCoords.entrySet()) {
+                    CheatCoord cheatCoord = new CheatCoord(path.get(i), cheatEntry.getKey());
+                    if (!usedCheats.contains(cheatCoord)) {
+                        usedCheats.add(new CheatCoord(path.get(i), cheatEntry.getKey()));
+                        int newCost = (mainPathPicoseconds - pathCost.get(cheatCoord.resultCoord)) + i + cheatCoords.get(cheatCoord);
                         System.out.println("New cost: " + newCost + " Coord: " + cheatCoord.cheatCoord);
                         if (newCost <= mainPathPicoseconds - 100) {
                             numCheats++;
@@ -95,8 +96,8 @@ public class RaceConditionPart1 {
         }
     }
 
-    private static boolean isWithinBounds(Coord coord, int rows, int cols) {
-        return coord.getX() >= 0 && coord.getX() < cols && coord.getY() >= 0 && coord.getY() < rows;
+    private static boolean isWithinBounds(Coord coord, List<List<Character>> map) {
+        return coord.getX() >= 0 && coord.getX() < map.get(0).size() && coord.getY() >= 0 && coord.getY() < map.size();
     }
 
     private static List<Coord> nextCoords(Coord curr) {
@@ -108,35 +109,18 @@ public class RaceConditionPart1 {
         return coords;
     }
 
-    private static List<CheatCoord> cheatCoords(Coord curr, List<List<Character>> map) {
-        List<CheatCoord> coords = new ArrayList<>();
-
-        if (map.get(curr.getY()).get(curr.getX() + 1) == WALL) {
-            coords.add(new CheatCoord(
-                    new Coord(curr.getX() + 1, curr.getY()),
-                    new Coord(curr.getX() + 2, curr.getY())
-            ));
+    private static void cheatCoords(Coord curr, List<List<Character>> map, Map<Coord, Integer> cheatCoords, int currDepth, int maxDepth) {
+        if (currDepth > maxDepth) {
+            return;
         }
-        if (map.get(curr.getY()).get(curr.getX() - 1) == WALL) {
-            coords.add(new CheatCoord(
-                    new Coord(curr.getX() -1, curr.getY()),
-                    new Coord(curr.getX() -2, curr.getY())
-            ));
-        }
-        if (map.get(curr.getY() + 1).get(curr.getX()) == WALL) {
-            coords.add(new CheatCoord(
-                    new Coord(curr.getX(), curr.getY() + 1),
-                    new Coord(curr.getX(), curr.getY() + 2)
-            ));
-        }
-        if (map.get(curr.getY() - 1).get(curr.getX()) == WALL) {
-            coords.add(new CheatCoord(
-                    new Coord(curr.getX(), curr.getY() - 1),
-                    new Coord(curr.getX(), curr.getY() -2)
-            ));
+        if (isWithinBounds(curr, map) && map.get(curr.getY()).get(curr.getY()) == SPACE) {
+            cheatCoords.put(curr, currDepth);
         }
 
-        return coords;
+        cheatCoords(new Coord(curr.getX() + 1, curr.getY()), map, cheatCoords, currDepth + 1, maxDepth);
+        cheatCoords(new Coord(curr.getX() - 1, curr.getY()), map, cheatCoords, currDepth + 1, maxDepth);
+        cheatCoords(new Coord(curr.getX(), curr.getY() + 1), map, cheatCoords, currDepth + 1, maxDepth);
+        cheatCoords(new Coord(curr.getX(), curr.getY() - 1), map, cheatCoords, currDepth + 1, maxDepth);
     }
 }
 
