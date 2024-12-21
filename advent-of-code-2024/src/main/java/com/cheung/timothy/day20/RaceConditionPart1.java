@@ -14,6 +14,7 @@ public class RaceConditionPart1 {
     private static final char START = 'S';
     private static final char END = 'E';
     private static final char SPACE = '.';
+    private static final char WALL = '#';
 
     public static void main(String[] args) throws IOException {
 
@@ -69,24 +70,24 @@ public class RaceConditionPart1 {
             }
             path.add(current);
             pathCost.put(current, mainPathPicoseconds);
-            System.out.println("Initial Cost: " + mainPathPicoseconds);
+            System.out.println("Initial Cost: " + mainPathPicoseconds + "\n");
 
             int numCheats = 0;
             Set<Coord> usedCheats = new HashSet<>();
             for (int i = 0; i < path.size(); i++) {
-                for (Coord cheat: cheatCoords(path.get(i))) {
-                    if (isWithinBounds(cheat, rows, cols) && pathCost.containsKey(cheat) && !usedCheats.contains(cheat)) {
-                        usedCheats.add(cheat);
-                        int newCost = (mainPathPicoseconds - pathCost.get(cheat)) + i + 2;
-                        System.out.println("New cost: " + newCost + " Coord: " + cheat);
-                        if (newCost < mainPathPicoseconds - 100) {
+                for (CheatCoord cheatCoord: cheatCoords(path.get(i), map)) {
+                    if (isWithinBounds(cheatCoord.resultCoord, rows, cols) && pathCost.containsKey(cheatCoord.resultCoord) && !usedCheats.contains(cheatCoord.cheatCoord)) {
+                        usedCheats.add(cheatCoord.cheatCoord);
+                        int newCost = (mainPathPicoseconds - pathCost.get(cheatCoord.resultCoord)) + i + 2;
+                        System.out.println("New cost: " + newCost + " Coord: " + cheatCoord.cheatCoord);
+                        if (newCost <= mainPathPicoseconds - 100) {
                             numCheats++;
                         }
                     }
                 }
             }
-
-            System.out.println("Num Cheats over 100 picoseconds: " + numCheats);
+            System.out.println("\n");
+            System.out.println("Num Cheats that save at least 100 picoseconds: " + numCheats);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -105,12 +106,44 @@ public class RaceConditionPart1 {
         return coords;
     }
 
-    private static List<Coord> cheatCoords(Coord curr) {
-        List<Coord> coords = new ArrayList<>(4);
-        coords.add(new Coord(curr.getX() + 2, curr.getY()));
-        coords.add(new Coord(curr.getX() - 2, curr.getY()));
-        coords.add(new Coord(curr.getX(), curr.getY() + 2));
-        coords.add(new Coord(curr.getX(), curr.getY() -2));
+    private static List<CheatCoord> cheatCoords(Coord curr, List<List<Character>> map) {
+        List<CheatCoord> coords = new ArrayList<>();
+
+        if (map.get(curr.getY()).get(curr.getX() + 1) == WALL) {
+            coords.add(new CheatCoord(
+                    new Coord(curr.getX() + 1, curr.getY()),
+                    new Coord(curr.getX() + 2, curr.getY())
+            ));
+        }
+        if (map.get(curr.getY()).get(curr.getX() - 1) == WALL) {
+            coords.add(new CheatCoord(
+                    new Coord(curr.getX() -1, curr.getY()),
+                    new Coord(curr.getX() -2, curr.getY())
+            ));
+        }
+        if (map.get(curr.getY() + 1).get(curr.getX()) == WALL) {
+            coords.add(new CheatCoord(
+                    new Coord(curr.getX(), curr.getY() + 1),
+                    new Coord(curr.getX(), curr.getY() + 2)
+            ));
+        }
+        if (map.get(curr.getY() - 1).get(curr.getX()) == WALL) {
+            coords.add(new CheatCoord(
+                    new Coord(curr.getX(), curr.getY() - 1),
+                    new Coord(curr.getX(), curr.getY() -2)
+            ));
+        }
+
         return coords;
+    }
+}
+
+class CheatCoord {
+    Coord cheatCoord;
+    Coord resultCoord;
+
+    public CheatCoord (Coord cheatCoord, Coord resultCoord) {
+        this.cheatCoord = cheatCoord;
+        this.resultCoord = resultCoord;
     }
 }
