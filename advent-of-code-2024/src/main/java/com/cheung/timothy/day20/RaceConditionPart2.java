@@ -14,7 +14,8 @@ public class RaceConditionPart2 {
     private static final char START = 'S';
     private static final char END = 'E';
     private static final char SPACE = '.';
-    private static final char WALL = '#';
+
+    private static final int CHEAT_SECONDS = 20;
 
     public static void main(String[] args) throws IOException {
 
@@ -75,13 +76,12 @@ public class RaceConditionPart2 {
             int numCheats = 0;
             Set<CheatCoord> usedCheats = new HashSet<>();
             for (int i = 0; i < path.size(); i++) {
-                Map<Coord, Integer> cheatCoords = new HashMap<>();
-                cheatCoords(path.get(i), map, cheatCoords, 0, 20);
+                Map<Coord, Integer> cheatCoords = findCheatCoords(path.get(i), map);
                 for (Map.Entry<Coord, Integer> cheatEntry: cheatCoords.entrySet()) {
                     CheatCoord cheatCoord = new CheatCoord(path.get(i), cheatEntry.getKey());
                     if (!usedCheats.contains(cheatCoord)) {
                         usedCheats.add(new CheatCoord(path.get(i), cheatEntry.getKey()));
-                        int newCost = (mainPathPicoseconds - pathCost.get(cheatCoord.resultCoord)) + i + cheatCoords.get(cheatCoord);
+                        int newCost = (mainPathPicoseconds - pathCost.get(cheatCoord.resultCoord)) + i + cheatEntry.getValue();
                         System.out.println("New cost: " + newCost + " Coord: " + cheatCoord.cheatCoord);
                         if (newCost <= mainPathPicoseconds - 100) {
                             numCheats++;
@@ -109,18 +109,22 @@ public class RaceConditionPart2 {
         return coords;
     }
 
-    private static void cheatCoords(Coord curr, List<List<Character>> map, Map<Coord, Integer> cheatCoords, int currDepth, int maxDepth) {
-        if (currDepth > maxDepth) {
-            return;
-        }
-        if (isWithinBounds(curr, map) && map.get(curr.getY()).get(curr.getY()) == SPACE) {
-            cheatCoords.put(curr, currDepth);
-        }
+    private static Map<Coord, Integer> findCheatCoords(Coord curr, List<List<Character>> map) {
+        Map<Coord, Integer> cheatCoords = new HashMap<>();
+        int xMin = Math.max(0, curr.getX() - CHEAT_SECONDS);
+        int xMax = Math.min(map.get(0).size(), curr.getX() + CHEAT_SECONDS);
+        int yMin = Math.max(0, curr.getY() - CHEAT_SECONDS);
+        int yMax = Math.min(map.size(), curr.getY() + CHEAT_SECONDS);
 
-        cheatCoords(new Coord(curr.getX() + 1, curr.getY()), map, cheatCoords, currDepth + 1, maxDepth);
-        cheatCoords(new Coord(curr.getX() - 1, curr.getY()), map, cheatCoords, currDepth + 1, maxDepth);
-        cheatCoords(new Coord(curr.getX(), curr.getY() + 1), map, cheatCoords, currDepth + 1, maxDepth);
-        cheatCoords(new Coord(curr.getX(), curr.getY() - 1), map, cheatCoords, currDepth + 1, maxDepth);
+        for (int y = yMin; y < yMax; y++) {
+            for (int x = xMin; x < xMax; x++) {
+                int cost = Math.abs(curr.getX() - x) + Math.abs(curr.getY() - y);
+                if (cost <= CHEAT_SECONDS && map.get(y).get(x) == SPACE) {
+                    cheatCoords.put(new Coord(x, y), cost);
+                }
+            }
+        }
+        return cheatCoords;
     }
 }
 
