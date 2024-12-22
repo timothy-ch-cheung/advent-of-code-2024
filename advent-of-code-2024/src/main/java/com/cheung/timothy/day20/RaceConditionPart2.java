@@ -14,16 +14,15 @@ public class RaceConditionPart2 {
     private static final char START = 'S';
     private static final char END = 'E';
     private static final char SPACE = '.';
-    private static final char WALL = '#';
 
     private static final int CHEAT_SECONDS = 20;
-    private static final int SAVE_THRESHOLD = 50;
+    private static final int SAVE_THRESHOLD = 100;
 
     public static void main(String[] args) throws IOException {
 
         ClassLoader classLoader = ClawContraptionPart1.class.getClassLoader();
 
-        try (InputStream inputStream = classLoader.getResourceAsStream("RaceCondition/example.txt");
+        try (InputStream inputStream = classLoader.getResourceAsStream("RaceCondition/input.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
 
@@ -85,7 +84,7 @@ public class RaceConditionPart2 {
                         int newCost = (mainPathPicoseconds - pathCost.get(cheatEntry.getKey().resultCoord)) + i + cheatEntry.getValue();
                         int saves = mainPathPicoseconds - newCost;
                         if (saves >= SAVE_THRESHOLD) {
-                            System.out.println("Saves: %s picoseconds [Start Cheat=%s] [End Cheat=%s]".formatted(saves, cheatEntry.getKey().cheatCoord, cheatEntry.getKey().resultCoord));
+                            // System.out.println("Saves: %s picoseconds [Start Cheat=%s] [End Cheat=%s]".formatted(saves, cheatEntry.getKey().cheatCoord, cheatEntry.getKey().resultCoord));
                             numCheats++;
                         }
                     }
@@ -114,56 +113,23 @@ public class RaceConditionPart2 {
     private static Map<CheatCoord, Integer> findCheatCoords(Coord curr, List<List<Character>> map) {
         Map<CheatCoord, Integer> cheatCoords = new HashMap<>();
 
-        if (map.get(curr.getY()).get(curr.getX() + 1) == WALL) {
-            var cheatStart = new Coord(curr.getX()+1, curr.getY());
-            findCheatCoords(curr,cheatStart, curr, map, cheatCoords, 1);
-        }
-        if (map.get(curr.getY()).get(curr.getX() - 1) == WALL) {
-            var cheatStart = new Coord(curr.getX()-1, curr.getY());
-            findCheatCoords(curr,cheatStart, curr, map, cheatCoords, 1);
-        }
-        if (map.get(curr.getY() + 1).get(curr.getX()) == WALL) {
-            var cheatStart = new Coord(curr.getX(), curr.getY()+1);
-            findCheatCoords(curr,cheatStart, curr, map, cheatCoords, 1);
-        }
-        if (map.get(curr.getY() -1).get(curr.getX()) == WALL) {
-            var cheatStart = new Coord(curr.getX(), curr.getY()-1);
-            findCheatCoords(curr, cheatStart, curr, map, cheatCoords, 1);
-        }
+        int minX = Math.max(0, curr.getX() - CHEAT_SECONDS);
+        int maxX = Math.min(map.get(0).size(), curr.getX() + CHEAT_SECONDS + 1);
+        int minY = Math.max(0, curr.getY() - CHEAT_SECONDS);
+        int maxY = Math.min(map.size(), curr.getY() + CHEAT_SECONDS + 1);
 
-        return cheatCoords;
-    }
-
-    private static void findCheatCoords(Coord cheatStart, Coord curr, Coord prev, List<List<Character>> map, Map<CheatCoord, Integer> cheatCoords, int depth) {
-        if (depth > CHEAT_SECONDS) {
-            return;
-        }
-        Character currChar = map.get(curr.getY()).get(curr.getX());
-        if (currChar == SPACE || currChar == END) {
-            var cheatCoord = new CheatCoord(cheatStart, curr);
-            var cost = cheatCoords.get(cheatCoord);
-            if (cost == null || cost > depth) {
-                cheatCoords.put(new CheatCoord(cheatStart, curr), depth);
+        for (int y = minY; y < maxY; y++) {
+            for (int x = minX; x < maxX; x++) {
+                int distance = Math.abs(curr.getX() - x) + Math.abs(curr.getY() - y);
+                if (distance > 20) {
+                    continue;
+                }
+                if (map.get(y).get(x) == SPACE || map.get(y).get(x) == END) {
+                    cheatCoords.put(new CheatCoord(curr, new Coord(x, y)), distance);
+                }
             }
-            return;
         }
-
-        var right = new Coord(curr.getX() + 1, curr.getY());
-        var left = new Coord(curr.getX() - 1, curr.getY());
-        var down = new Coord(curr.getX(), curr.getY() +1);
-        var up = new Coord(curr.getX(), curr.getY() -1);
-        if (!prev.equals(right) && isWithinBounds(right, map)) {
-            findCheatCoords(cheatStart,right, curr, map, cheatCoords, depth + 1);
-        }
-        if (!prev.equals(left) && isWithinBounds(left, map)) {
-            findCheatCoords(cheatStart,left, curr, map, cheatCoords, depth + 1);
-        }
-        if (!prev.equals(down) && isWithinBounds(down, map)) {
-            findCheatCoords(cheatStart,down, curr, map, cheatCoords, depth + 1);
-        }
-        if (!prev.equals(up) && isWithinBounds(up, map)) {
-            findCheatCoords(cheatStart, up, curr, map, cheatCoords, depth + 1);
-        }
+        return cheatCoords;
     }
 }
 
