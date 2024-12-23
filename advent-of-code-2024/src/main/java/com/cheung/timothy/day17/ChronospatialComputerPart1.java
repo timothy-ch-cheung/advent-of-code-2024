@@ -96,8 +96,7 @@ class Computer {
 
     private void out(int operand) {
         long out = comboOperand(operand) % 8;
-        //System.out.println("OUT: " + out);
-        System.out.print(out);
+        System.out.print(out + ",");
     }
 
     private void bdv(int operand) {
