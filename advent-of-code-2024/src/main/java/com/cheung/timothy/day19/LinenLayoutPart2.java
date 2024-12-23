@@ -15,7 +15,7 @@ public class LinenLayoutPart2 {
 
     public static void main(String[] args) throws IOException {
 
-        ClassLoader classLoader = ClawContraptionPart1.class.getClassLoader();
+        ClassLoader classLoader = LinenLayoutPart2.class.getClassLoader();
 
         try (InputStream inputStream = classLoader.getResourceAsStream("LinenLayout/input.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
