@@ -32,7 +32,7 @@ public class RamRunPart2 {
             int mid = low + (high-low)/2;
             while (!isFirstByteFound(mid, corruptedBytes)) {
                 mid = low + (high-low)/2;
-                int cost = getEndCost(corruptedBytes, mid);
+                int cost = getEndCost(corruptedBytes, mid +1);
                 corruptedBytes.get(mid).setIsBlocking(cost < 0);
                 if (corruptedBytes.get(mid).getIsBlocking()) {
                     high = mid - 1;
@@ -41,7 +41,7 @@ public class RamRunPart2 {
                 }
             }
 
-            System.out.println("First blocking byte: " + corruptedBytes.get(mid-1).getByte());
+            System.out.println("First blocking byte: " + corruptedBytes.get(mid).getByte());
         } catch (IOException e) {
             e.printStackTrace();
         }
