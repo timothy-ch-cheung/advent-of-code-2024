@@ -31,6 +31,10 @@ public class Coord {
         this.y += delta.getY();
     }
 
+    public Coord clone() {
+        return new Coord(x, y);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (!(o instanceof Coord coord)) return false;
