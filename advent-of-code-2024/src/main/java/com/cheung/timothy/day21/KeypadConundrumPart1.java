@@ -1,6 +1,5 @@
 package com.cheung.timothy.day21;
 
-import com.cheung.timothy.day06.Coord;
 import com.cheung.timothy.day13.ClawContraptionPart1;
 
 import java.io.BufferedReader;
