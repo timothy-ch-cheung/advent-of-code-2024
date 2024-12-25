@@ -20,7 +20,7 @@ public class CodeChroniclePart1 {
             String line;
 
             List<List<Integer>> keys = new ArrayList<>();
-            Set<List<Integer>> locks = new HashSet<>();
+            List<List<Integer>> locks = new ArrayList<>();
             while ((line = reader.readLine()) != null) {
                 boolean isKey = false;
                 if (line.contains(".")) {
