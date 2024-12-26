@@ -1,13 +1,11 @@
 package com.cheung.timothy.day25;
 
-import com.cheung.timothy.day21.KeypadConundrumPart1;
-import com.cheung.timothy.day22.MonkeyMarketPart1;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CodeChroniclePart1 {
 
@@ -30,16 +28,16 @@ public class CodeChroniclePart1 {
                 for (int i = 0; i < line.length(); i++) {
                     curr.add(0);
                 }
-                while ((line = reader.readLine()) != null && !line.isEmpty()) {
+                int linesRead = 0;
+                while ((line = reader.readLine()) != null && !line.isEmpty() && linesRead < 5) {
                     for (int i = 0; i < line.length(); i++) {
                         if (line.charAt(i) == '#') {
                             curr.set(i, curr.get(i) + 1);
                         }
                     }
                 }
-                for (int i = 0; i < curr.size(); i++) {
-                    curr.set(i, curr.get(i) - 1);
-                }
+                reader.readLine();
+
                 if (isKey) {
                     keys.add(curr);
                 } else {
@@ -47,24 +45,27 @@ public class CodeChroniclePart1 {
                 }
             }
 
-            int totalPairs = 0;
-            for (List<Integer> key: keys) {
-                if (locks.contains(toLock(key))) {
-                    totalPairs++;
+            int matches = 0;
+            for (List<Integer> lock : locks) {
+                for (List<Integer> key : keys) {
+                    if (fits(lock, key)) {
+                        matches++;
+                    }
                 }
             }
 
-            System.out.println("Total Pairs: " + totalPairs);
+            System.out.println("Total Pairs: " + matches);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private static List<Integer> toLock(List<Integer> key) {
-        List<Integer> lock = new ArrayList<>(key.size());
-        for(Integer depth: key) {
-            lock.add(5-depth);
+    private static boolean fits(List<Integer> lock, List<Integer> key) {
+        for (int i = 0; i < lock.size(); i++) {
+            if (lock.get(i) + key.get(i) > 5) {
+                return false;
+            }
         }
-        return lock;
+        return true;
     }
 }
