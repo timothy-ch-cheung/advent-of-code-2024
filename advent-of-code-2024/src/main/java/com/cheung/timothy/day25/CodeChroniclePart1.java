@@ -29,7 +29,8 @@ public class CodeChroniclePart1 {
                     curr.add(0);
                 }
                 int linesRead = 0;
-                while ((line = reader.readLine()) != null && !line.isEmpty() && linesRead < 5) {
+                while ((line = reader.readLine()) != null && linesRead < 5) {
+                    linesRead++;
                     for (int i = 0; i < line.length(); i++) {
                         if (line.charAt(i) == '#') {
                             curr.set(i, curr.get(i) + 1);
