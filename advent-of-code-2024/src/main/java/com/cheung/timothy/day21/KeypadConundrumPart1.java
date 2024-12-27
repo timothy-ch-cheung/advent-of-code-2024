@@ -14,8 +14,8 @@ public class KeypadConundrumPart1 {
     public static void main(String[] args) throws IOException {
 
         ClassLoader classLoader = ClawContraptionPart1.class.getClassLoader();
-
-        try (InputStream inputStream = classLoader.getResourceAsStream("KeypadConundrum/example.txt");
+        // Best so far: 182932
+        try (InputStream inputStream = classLoader.getResourceAsStream("KeypadConundrum/input.txt");
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
 
