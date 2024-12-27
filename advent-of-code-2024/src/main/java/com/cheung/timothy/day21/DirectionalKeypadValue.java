@@ -92,4 +92,35 @@ public enum DirectionalKeypadValue {
         }
         return moves;
     }
+
+    public static String decode(String input) {
+        int x = 2;
+        int y = 0;
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) == '^') {
+                y -= 1;
+            } else if (input.charAt(i) == 'v') {
+                y += 1;
+            } else if (input.charAt(i) == '<') {
+                x -= 1;
+            } else if (input.charAt(i) == '>') {
+                x += 1;
+            } else if (input.charAt(i) == 'A') {
+                if (x == 1 && y == 0) {
+                    sb.append("^");
+                } if (x == 0 && y == 1) {
+                    sb.append("<");
+                } else if (x == 1 && y == 1) {
+                    sb.append("v");
+                } else if (x == 2 && y == 1) {
+                    sb.append(">");
+                } else if (x == 2 && y == 0) {
+                    sb.append("A");
+                }
+            }
+        }
+        return sb.toString();
+    }
 }
+

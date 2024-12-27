@@ -19,21 +19,24 @@ public class KeypadConundrumPart1 {
              BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream))) {
             String line;
 
+            int totalComplexity = 0;
             while ((line = reader.readLine()) != null) {
                 List<DirectionalKeypadValue> robot1Moves = numericToDirectional(line);
                 List<DirectionalKeypadValue> robot2Moves = directionalToDirectional(robot1Moves);
-                List<DirectionalKeypadValue> robot3Moves = directionalToDirectional(robot2Moves);
-                List<DirectionalKeypadValue> humanMoves = directionalToDirectional(robot3Moves);
+                List<DirectionalKeypadValue> humanMoves = directionalToDirectional(robot2Moves);
 
-                printMoves(robot1Moves);
-                printMoves(robot2Moves);
-                printMoves(robot3Moves);
-                printMoves(humanMoves);
-                System.out.println(humanMoves.size());
+//                printMoves(robot1Moves);
+//                printMoves(robot2Moves);
+//                printMoves(humanMoves);
+                int complexity = Integer.parseInt(line.substring(0, line.length() - 1)) * humanMoves.size();
+                System.out.println(line + ": " + complexity);
+                totalComplexity += complexity;
             }
 
-            int totalComplexity = 0;
             System.out.println("Total Complexity: " + totalComplexity);
+            printMoves(numericToDirectional("379A"));
+            printMoves(directionalToDirectional(numericToDirectional("379A")));
+            printMoves(directionalToDirectional(directionalToDirectional(numericToDirectional("379A"))));
         } catch (IOException e) {
             e.printStackTrace();
         }
