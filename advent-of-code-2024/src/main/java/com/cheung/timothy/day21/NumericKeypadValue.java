@@ -69,20 +69,21 @@ public enum NumericKeypadValue {
         List<DirectionalKeypadValue> moves = new ArrayList<>();
         int dx = newVal.loc.getX() - loc.getX();
         int dy = newVal.loc.getY() - loc.getY();
-        var keypadBtn = DirectionalKeypadValue.fromDx(dx);
-        if (dy < 0) {
-            for (int i = 0; i < Math.abs(dy); i++) {
-                moves.add(DirectionalKeypadValue.UP);
-            }
+        var horizontalBtn = DirectionalKeypadValue.fromDx(dx);
+        var verticalBtn = DirectionalKeypadValue.fromDy(dy);
+        if (this.loc.getX() == 0 && newVal.loc.getY() == 3) {
             for (int i = 0; i < Math.abs(dx); i++) {
-                moves.add(keypadBtn);
+                moves.add(horizontalBtn);
+            }
+            for (int i = 0; i < Math.abs(dy); i++) {
+                moves.add(verticalBtn);
             }
         } else {
-            for (int i = 0; i < Math.abs(dx); i++) {
-                moves.add(keypadBtn);
-            }
             for (int i = 0; i < Math.abs(dy); i++) {
-                moves.add(DirectionalKeypadValue.DOWN);
+                moves.add(verticalBtn);
+            }
+            for (int i = 0; i < Math.abs(dx); i++) {
+                moves.add(horizontalBtn);
             }
         }
         return moves;

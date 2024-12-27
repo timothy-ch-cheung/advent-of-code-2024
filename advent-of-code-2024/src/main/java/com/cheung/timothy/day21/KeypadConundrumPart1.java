@@ -25,6 +25,10 @@ public class KeypadConundrumPart1 {
                 List<DirectionalKeypadValue> robot3Moves = directionalToDirectional(robot2Moves);
                 List<DirectionalKeypadValue> humanMoves = directionalToDirectional(robot3Moves);
 
+                printMoves(robot1Moves);
+                printMoves(robot2Moves);
+                printMoves(robot3Moves);
+                printMoves(humanMoves);
                 System.out.println(humanMoves.size());
             }
 
@@ -58,7 +62,19 @@ public class KeypadConundrumPart1 {
         }
         return moves;
     }
+
+    private static List<DirectionalKeypadValue> fromString(String input) {
+        List<DirectionalKeypadValue> moves = new ArrayList<>();
+        for (int i = 0; i < input.length(); i++) {
+            moves.add(DirectionalKeypadValue.fromChar(input.charAt(i)));
+        }
+        return moves;
+    }
+
+    private static void printMoves(List<DirectionalKeypadValue> keypadValues) {
+        for (DirectionalKeypadValue value: keypadValues) {
+            System.out.print(value);
+        }
+        System.out.println();
+    }
 }
-
-
-// <vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>Av<<A>>^A<A>AvA<^AA>A<vAAA>^A<A^A>^^AvvvA

@@ -29,6 +29,38 @@ public enum DirectionalKeypadValue {
         }
     }
 
+    public static DirectionalKeypadValue fromDy(int dy) {
+        assert dy != 0;
+        if (dy < 0) {
+            return UP;
+        } else {
+            return DOWN;
+        }
+    }
+
+    public static DirectionalKeypadValue fromChar(char character) {
+        switch (character) {
+            case 'A' -> {
+                return A_BUTTON;
+            }
+            case '^' -> {
+                return UP;
+            }
+            case 'v' -> {
+                return DOWN;
+            }
+            case '<' -> {
+                return LEFT;
+            }
+            case '>' -> {
+                return RIGHT;
+            }
+            default -> {
+                throw new RuntimeException();
+            }
+        }
+    }
+
     public char getCharacter() {
         return character;
     }
@@ -41,20 +73,21 @@ public enum DirectionalKeypadValue {
         List<DirectionalKeypadValue> moves = new ArrayList<>();
         int dx = newVal.loc.getX() - loc.getX();
         int dy = newVal.loc.getY() - loc.getY();
-        var keypadBtn = DirectionalKeypadValue.fromDx(dx);
-        if (dy < 0) {
-            for (int i = 0; i < Math.abs(dx); i++) {
-                moves.add(keypadBtn);
-            }
+        var horizontalBtn = DirectionalKeypadValue.fromDx(dx);
+        var verticalBtn = DirectionalKeypadValue.fromDy(dy);
+        if (this.loc.getX() == 0 && newVal.loc.getY() == 1) {
             for (int i = 0; i < Math.abs(dy); i++) {
-                moves.add(DirectionalKeypadValue.UP);
+                moves.add(verticalBtn);
+            }
+            for (int i = 0; i < Math.abs(dx); i++) {
+                moves.add(horizontalBtn);
             }
         } else {
-            for (int i = 0; i < Math.abs(dy); i++) {
-                moves.add(DirectionalKeypadValue.DOWN);
-            }
             for (int i = 0; i < Math.abs(dx); i++) {
-                moves.add(keypadBtn);
+                moves.add(horizontalBtn);
+            }
+            for (int i = 0; i < Math.abs(dy); i++) {
+                moves.add(verticalBtn);
             }
         }
         return moves;
